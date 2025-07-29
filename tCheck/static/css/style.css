@@ -408,3 +408,16 @@ p {
 
 }
 
+
+button.task-button {
+  background-color: #4f46e5; /* Indigo-600 */
+  color: white;
+  padding: 0.75em 1.5em;
+  border: none;
+  border-radius: 0.5em;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+}

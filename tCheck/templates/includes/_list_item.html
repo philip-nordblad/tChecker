@@ -5,9 +5,8 @@
     <section class="list-item-content">
         {% for item in list_item.items %}
             <article class="list-item-task ">
-                <p class="task-description">{{ item.description }}</p>
+                <p class="task-description"><strong>{{ item.description }}</strong></p>
                 {% if item.requires_input %}
-                    <div class="input-group">
                         {% if item.input_type == 'text' %}
                             <input type="text" id="item-{{ item.id }}-input" class="task-input" placeholder="Enter Text">
                         {% elif item.input_type == 'number' %}
@@ -20,12 +19,11 @@
                         <button class="button-basic task-button">
                             Save & Complete
                         </button>
-                    </div>
-                {% else %}
-                    <button class="button-basic task-button">
+                        {% else %}
+                        <button class="button-basic task-button">
                         Mark Complete
-                    </button>
-                {% endif %}
+                        </button>
+                        {% endif %}
             </article>
         {% endfor %}
     </section>
