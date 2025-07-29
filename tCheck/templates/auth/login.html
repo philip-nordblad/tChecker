@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div id="pin-container">
+  <h2>Enter Your PIN</h2>
+  <div id="pin-display">••••</div>
+  <div id="pin-buttons">
+    {% for row in [[1,2,3], [4,5,6], [7,8,9], ['Clear',0,'Undo']] %}
+      <div class="button-row">
+        {% for val in row %}
+          <button class="{% if val == 'Clear' %}pin-clear{% elif val == 'Undo' %}pin-enter{% else %}pin-digit{% endif %}"
+            onclick="
+            {% if val == 'Clear' %}PinPad.reset()
+            {% elif val == 'Undo' %}PinPad.undo()
+            {% else %}PinPad.press({{ val }}){% endif %}"
+          >
+            {{ val }}
+          </button>
+        {% endfor %}
+      </div>
+    {% endfor %}
+  </div>
+</div>
+
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+<script src="{{ url_for('static', filename='js/pinpad.js') }}"></script>
+{% endblock %}

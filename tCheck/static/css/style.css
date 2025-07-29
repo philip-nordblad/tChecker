@@ -1,0 +1,410 @@
+/* Reset and base styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow-x: hidden;
+}
+
+:root {
+    /* Flash message variables */
+    --flash-background-color: #6bf0f6;
+    --flash-border-color: #007bff;
+    --flash-border-radius: 4px;
+    --flash-shadow-strength: 0.15;
+    --flash-padding: 1rem 1.5rem;
+
+    /* Layout variables */
+    --navbar-height: 56px;
+    --sidebar-width: 250px;
+
+    /* Color scheme */
+    --primary-color: #3498db;
+    --primary-hover: #2980b9;
+    --secondary-color: #2c3e50;
+    --secondary-hover: #34495e;
+    --accent-color: #e74c3c;
+    --success-color: #27ae60;
+    --background-light: #f8f9fa;
+    --background-dark: #f5f5f5;
+    --text-primary: #333;
+    --text-light: #ecf0f1;
+    --border-color: #ddd;
+    --shadow-light: rgba(0, 0, 0, 0.1);
+    --shadow-medium: rgba(0, 0, 0, 0.15);
+}
+
+/* Flash Messages */
+div.flash {
+    background-color: var(--flash-background-color);
+    display: flex;
+    border-radius: var(--flash-border-radius);
+    border: 1px solid var(--flash-border-color);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, var(--flash-shadow-strength));
+    padding: var(--flash-padding);
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+/* PIN Container Styles */
+#pin-container {
+    max-width: 300px;
+    margin: 50px auto;
+    padding: 20px;
+    border-radius: 10px;
+    background-color: var(--background-light);
+    box-shadow: 0 4px 12px var(--shadow-light);
+    text-align: center;
+    font-family: Arial, sans-serif;
+}
+
+#pin-container h2 {
+    margin-bottom: 20px;
+    font-size: 1.5em;
+    color: var(--text-primary);
+}
+
+#pin-display {
+    font-size: 2rem;
+    letter-spacing: 0.5em;
+    margin: 20px 0;
+    padding: 10px;
+    background-color: white;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    min-height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#pin-buttons {
+    display: grid;
+    grid-gap: 10px;
+}
+
+.button-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+#pin-buttons button {
+    flex: 1;
+    padding: 15px 0;
+    font-size: 1.2rem;
+    border: none;
+    border-radius: 5px;
+    background-color: #e0e0e0;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+#pin-buttons button:hover {
+    background-color: #d0d0d0;
+}
+
+#pin-buttons button:active {
+    transform: scale(0.95);
+    background-color: #c0c0c0;
+}
+
+#pin-buttons button[onclick="PinPad.reset()"] {
+    background-color: var(--accent-color);
+    color: white;
+}
+
+#pin-buttons button[onclick="PinPad.submitPin()"] {
+    background-color: var(--success-color);
+    color: white;
+}
+
+#pin-buttons button[onclick="PinPad.reset()"]:hover {
+    background-color: #c0392b;
+}
+
+#pin-buttons button[onclick="PinPad.submitPin()"]:hover {
+    background-color: #229954;
+}
+
+/* Layout Containers */
+.main-container {
+    display: flex;
+    min-height: calc(100vh - var(--navbar-height));
+    background-color: var(--background-dark);
+    margin: 0;
+    padding: 0;
+}
+
+/* Sidebar Styles */
+.sidebar {
+    width: var(--sidebar-width);
+    background-color: var(--secondary-color);
+    color: var(--text-light);
+    padding: 0;
+    box-shadow: 2px 0 5px var(--shadow-light);
+    position: fixed;
+    top: var(--navbar-height);
+    left: 0;
+    height: calc(100vh - var(--navbar-height));
+    overflow-y: auto;
+    z-index: 1000;
+}
+
+.sidebar-header {
+    padding: 20px;
+    background-color: var(--secondary-hover);
+    border-bottom: 1px solid #445566;
+}
+
+.sidebar-header h3 {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--text-light);
+}
+
+.sidebar-menu {
+    padding: 10px 0;
+}
+
+.sidebar-btn {
+    width: 100%;
+    padding: 15px 20px;
+    background: none;
+    border: none;
+    color: var(--text-light);
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 1rem;
+}
+
+.sidebar-btn:hover {
+    background-color: var(--secondary-hover);
+    padding-left: 25px;
+    color: white;
+}
+
+.sidebar-btn.active {
+    background-color: var(--primary-color);
+    border-right: 4px solid var(--primary-hover);
+    color: white;
+}
+
+.sidebar-btn i {
+    font-size: 1.1rem;
+    width: 20px;
+}
+
+/* Main Content Area */
+.main-content {
+    flex: 1;
+    margin-left: var(--sidebar-width);
+    padding: 30px;
+    background-color: white;
+    min-height: calc(100vh - var(--navbar-height));
+}
+
+/* Content Sections */
+.content-section {
+    display: none;
+    animation: fadeIn 0.3s ease-in;
+}
+
+.content-section.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Button Styles */
+.btn {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 5px;
+    display: inline-block;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+.btn:hover {
+    background-color: var(--primary-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px var(--shadow-medium);
+}
+
+.btn:active {
+    transform: translateY(0);
+}
+
+/* List Container Styles */
+.list-container {
+    margin-bottom: 20px;
+    padding: 20px;
+    background-color: var(--background-light);
+    border-radius: 8px;
+    border-left: 4px solid var(--primary-color);
+    box-shadow: 0 2px 4px var(--shadow-light);
+    transition: all 0.3s ease;
+}
+
+.list-container:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px var(--shadow-medium);
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+}
+
+h2 {
+    font-size: 2rem;
+    font-weight: 600;
+}
+
+h3 {
+    font-size: 1.5rem;
+    font-weight: 500;
+}
+
+p {
+    color: var(--text-primary);
+    line-height: 1.6;
+    margin-bottom: 1rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+        top: 0;
+    }
+
+    .main-content {
+        margin-left: 0;
+        padding: 20px;
+    }
+
+    .sidebar-menu {
+        display: flex;
+        overflow-x: auto;
+        padding: 0;
+    }
+
+    .sidebar-btn {
+        min-width: 120px;
+        justify-content: center;
+        padding: 15px 10px;
+    }
+
+    .sidebar-btn:hover {
+        padding-left: 10px;
+    }
+
+    .main-container {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 480px) {
+    .main-content {
+        padding: 15px;
+    }
+
+    .list-container {
+        padding: 15px;
+    }
+
+    .btn {
+        padding: 8px 16px;
+        font-size: 0.9rem;
+    }
+}
+
+/* Utility Classes */
+.text-center {
+    text-align: center;
+}
+
+.text-left {
+    text-align: left;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.mb-0 { margin-bottom: 0; }
+.mb-1 { margin-bottom: 0.5rem; }
+.mb-2 { margin-bottom: 1rem; }
+.mb-3 { margin-bottom: 1.5rem; }
+.mb-4 { margin-bottom: 2rem; }
+
+.mt-0 { margin-top: 0; }
+.mt-1 { margin-top: 0.5rem; }
+.mt-2 { margin-top: 1rem; }
+.mt-3 { margin-top: 1.5rem; }
+.mt-4 { margin-top: 2rem; }
+
+/* Focus states for accessibility */
+.sidebar-btn:focus,
+.btn:focus,
+#pin-buttons button:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+}
+
+/* Scrollbar styling for sidebar */
+.sidebar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+    background: var(--secondary-color);
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background: var(--secondary-hover);
+    border-radius: 3px;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+    background: #445566;
+}
+/* Adjust list-item layout to position buttons on the right */
+
+.list-item-task{
+    display: flex;
+    justify-content: space-between;
+    margin: 5px;
+
+}
+

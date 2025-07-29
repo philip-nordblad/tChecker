@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+
+
+{% block content %}
+
+<div class="main-container">
+    <!-- Left Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-menu">
+            <button class="sidebar-btn active" data-target="content1">
+                <i class="icon-home"></i>
+                <span>Home</span>
+            </button>
+            <button class="sidebar-btn" data-target="content2">
+                <i class="icon-logs"></i>
+                <span>Logs</span>
+            </button>
+            <button class="sidebar-btn" data-target="content3">
+                <i class="icon-misc"></i>
+                <span>Misc</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div id="content1" class="content-section active">
+            <h2>Pre-Made Lists</h2>
+            {% if lists %}
+            {% for list in lists %}
+                <div class="list-container">
+                    {% set list_item = list %}
+                    {% include 'includes/_list_item.html' %}
+                </div>
+            {% endfor %}
+            {% else %}
+                <p>No lists found yet. Create your first list!</p>
+                <a href="{{url_for('tasks.create_list')}}" class="btn">Create New List</a>
+            {% endif %}
+        </div>
+
+        <div id="content2" class="content-section">
+            <h3>Logs</h3>
+            <p>View your application logs and activity history here.</p>
+        </div>
+
+        <div id="content3" class="content-section">
+            <h3>Miscellaneous</h3>
+            <p>Additional tools and settings go here.</p>
+        </div>
+    </div>
+
+</div>
+
+
+
+{% endblock %}

@@ -1,0 +1,2 @@
+FLASK_APP=tCheck
+FLASK_ENV=development
