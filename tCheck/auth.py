@@ -5,7 +5,7 @@ from tCheck.extensions import db
 from .forms import RegistrationForm, LoginForm
 from tCheck.models import User
 
-import cv2 as cv
+
 
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')

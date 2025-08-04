@@ -1,4 +1,4 @@
-#!/Users/philipnordblad/PycharmProjects/tChecker/.venv/bin/python3
+#!/home/philip-nordblad/commit/tChecker/.venv/bin/python3.12
 # -*- coding: utf-8 -*-
 import re
 import sys
