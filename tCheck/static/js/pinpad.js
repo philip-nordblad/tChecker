@@ -7,10 +7,12 @@ var PinPad = (function() {
         if (display) display.innerText = '•'.repeat(pin.length);
     }
 
+
     function getCSRFToken() {
-        const csrfInput = document.querySelector('[name=csrf_token]');
-        return csrfInput ? csrfInput.value : '';
-    }
+    const meta = document.querySelector('meta[name="csrf-token"]');
+    return meta ? meta.getAttribute('content') : '';
+}
+
 
     return {
         press(num) {
@@ -49,7 +51,7 @@ var PinPad = (function() {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-CSRFToken': getCSRFToken()
+                        'X-CSRFToken': getCSRFToken(),
                     },
                     body: JSON.stringify({ pin: pin })
                 });

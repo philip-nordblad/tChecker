@@ -5,6 +5,7 @@ from tCheck.extensions import db
 from .forms import RegistrationForm, LoginForm
 from tCheck.models import User
 
+from flask_wtf.csrf import CSRFError, validate_csrf
 
 
 
@@ -61,7 +62,13 @@ def login():
         form = LoginForm()
         return render_template('auth/login.html', form=form)
 
+    #error handling 
 
+    try:
+        csrf_token = request.headers.get('X-CSRFToken')
+        validate_csrf(csrf_token)
+    except CSRFError as e:
+        return jsonify({'success': False, 'error': 'CSRF token missing or invalid'}), 400
     # AJAX POST handling
     data = request.get_json()
     error = None
@@ -96,7 +103,7 @@ def login():
     all_users = User.query.all()
     authenticated_user = None
 
-    print(f"pin vs input_pin: {data.get('pin')} vs {input_pin}")
+    #print(f"pin vs input_pin: {data.get('pin')} vs {input_pin}")
     for u in all_users:
         if u.check_pin(input_pin):
             session['login_attempts'] += 1

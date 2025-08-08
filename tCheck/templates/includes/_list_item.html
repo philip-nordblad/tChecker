@@ -4,26 +4,26 @@
     </header>
     <section class="list-item-content">
         {% for item in list_item.items %}
-            <article class="list-item-task ">
+            <article class="list-item-task">
                 <p class="task-description"><strong>{{ item.description }}</strong></p>
                 {% if item.requires_input %}
-                        {% if item.input_type == 'text' %}
-                            <input type="text" id="item-{{ item.id }}-input" class="task-input" placeholder="Enter Text">
-                        {% elif item.input_type == 'number' %}
-                            <input type="number" id="item-{{ item.id }}-input" class="task-input" placeholder="Enter Number">
-                        {% elif item.input_type == 'date' %}
-                            <input type="date" id="item-{{ item.id }}-input" class="task-input" placeholder="Enter Date">
-                        {% else %}
-                            <input type="text" id="item-{{ item.id }}-input" class="task-input" placeholder="Enter value">
-                        {% endif %}
-                        <button class="button-basic task-button">
-                            Save & Complete
-                        </button>
-                        {% else %}
-                        <button class="button-basic task-button">
+                    {% if item.input_type == 'text' %}
+                        <input type="text" id="item-{{ item.id }}-input" class="task-input" placeholder="Enter Text">
+                    {% elif item.input_type == 'number' %}
+                        <input type="number" id="item-{{ item.id }}-input" class="task-input" placeholder="Enter Number">
+                    {% elif item.input_type == 'date' %}
+                        <input type="date" id="item-{{ item.id }}-input" class="task-input" placeholder="Enter Date">
+                    {% else %}
+                        <input type="text" id="item-{{ item.id }}-input" class="task-input" placeholder="Enter value">
+                    {% endif %}
+                    <button class="button-basic task-button" data-item-id="{{ item.id }}">
+                        Save & Complete
+                    </button>
+                {% else %}
+                    <button class="button-basic task-button" data-item-id="{{ item.id }}">
                         Mark Complete
-                        </button>
-                        {% endif %}
+                    </button>
+                {% endif %}
             </article>
         {% endfor %}
     </section>
