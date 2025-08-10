@@ -13,7 +13,7 @@ class User(db.Model):
     # Relationships
     created_list_templates = db.relationship('ListTemplate', backref='creator', lazy=True)
     assigned_lists = db.relationship('UserListAssignment', backref='user_assignee', lazy=True)
-    completed_items = db.relationship('UserCompletedItem', backref='user_completer', lazy=True)
+    completed_items = db.relationship('UserCompletedItemLog', backref='user_completer', lazy=True)
 
     def __repr__(self):
         return f'<User {self.username}>'
@@ -62,7 +62,7 @@ class ListItemTemplate(db.Model):
     item_order = db.Column(db.Integer, nullable=False)
 
     # Relationship to user completed items for this specific item template
-    completed_by_users = db.relationship('UserCompletedItem', backref='item_template', lazy=True)
+    completed_by_users = db.relationship('UserCompletedItemLog', backref='item_template', lazy=True)
 
     def __repr__(self):
         return f'<ListItemTemplate {self.description}>'
@@ -79,17 +79,15 @@ class UserListAssignment(db.Model):
     def __repr__(self):
         return f'<UserListAssignment UserID:{self.user_id} ListTemplateID:{self.list_template_id}>'
 
-class UserCompletedItem(db.Model):
-    __tablename__ = 'user_completed_item'
+class UserCompletedItemLog(db.Model):
+    __tablename__ = 'user_completed_item_log'
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     list_item_template_id = db.Column(db.Integer, db.ForeignKey('list_item_template.id'), nullable=False)
-    input_value = db.Column(db.Text) # To store the actual input if requires_input is true
-    completed_at = db.Column(db.DateTime, default=datetime.utcnow) # When it was completed
-
-    # Ensure a user completes a specific item template only once (or you might allow multiple completions
-    # if it's a recurring task, then remove this unique constraint and add a timestamp to distinguish)
-    __table_args__ = (db.UniqueConstraint('user_id', 'list_item_template_id', name='_user_completed_item_uc'),)
+    action = db.Column(db.String(50), nullable=False)  # "completed", "uncompleted", etc.
+    input_value = db.Column(db.Text)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
     def __repr__(self):
-        return f'<UserCompletedItem UserID:{self.user_id} ItemTemplateID:{self.list_item_template_id}>'
+        return f'<UserCompletedItemLog {self.action} UserID:{self.user_id} ItemTemplateID:{self.list_item_template_id}>'
+

@@ -2,7 +2,7 @@
 import click
 from flask.cli import with_appcontext
 from tCheck.extensions import db # Import the SQLAlchemy db instance
-from tCheck.models import User, ListTemplate, ListItemTemplate, UserListAssignment, UserCompletedItem # Import your models
+from tCheck.models import User, ListTemplate, ListItemTemplate, UserListAssignment, UserCompletedItemLog # Import your models
 
 @click.command('init-db')
 @with_appcontext
@@ -18,7 +18,7 @@ def seed_db_command():
     """Seed the database with test data."""
     # Clear existing data (for testing purposes only!)
     click.echo("🔄 Clearing existing data...")
-    UserCompletedItem.query.delete()
+    UserCompletedItemLog.query.delete()
     UserListAssignment.query.delete()
     ListItemTemplate.query.delete()
     ListTemplate.query.delete()
@@ -101,23 +101,28 @@ def seed_db_command():
     db.session.commit()
 
     click.echo("✅ Marking some items as completed...")
-    # Simulate completed items
+
     completed_items = [
-        UserCompletedItem(
+        UserCompletedItemLog(
             user_id=user.id,
-            list_item_template_id=items1[0].id
+            list_item_template_id=items1[0].id,
+            action="completed"
         ),
-        UserCompletedItem(
+        UserCompletedItemLog(
             user_id=user.id,
             list_item_template_id=items1[1].id,
+            action="completed",
             input_value="22.5"
         ),
-        UserCompletedItem(
+        UserCompletedItemLog(
             user_id=user.id,
-            list_item_template_id=items2[0].id
+            list_item_template_id=items2[0].id,
+            action="completed"
         )
     ]
+
     db.session.add_all(completed_items)
     db.session.commit()
+
 
     click.echo("✅ Database seeded with mock data.")

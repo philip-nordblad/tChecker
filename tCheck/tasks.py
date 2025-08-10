@@ -2,7 +2,7 @@ from flask import (Blueprint, flash, redirect, render_template, url_for, request
 
 from werkzeug.security import generate_password_hash, check_password_hash
 from tCheck.extensions import db
-from tCheck.models import ListTemplate, UserCompletedItem
+from tCheck.models import ListTemplate, UserCompletedItemLog
 
 bp = Blueprint('tasks', __name__, url_prefix='/tasks')
 
@@ -55,12 +55,12 @@ def create_list():
         list_title = request.form.get('title')
 
 
-@bp.route('/complete_item', methods=['POST','GET'] )
+@bp.route('/complete_item', methods=['POST', 'GET'])
 def complete_item():
-    
     print("Complete Item Endpoint Hit")
     data = request.get_json(silent=True)
     print(data)
+
     item_id = data.get('item_id')
     user_id = session.get('user_id')
     input_value = data.get('item_input', '')
@@ -68,19 +68,14 @@ def complete_item():
     if user_id is None:
         return jsonify({'status': 'error', 'message': 'User not logged in.'}), 401
 
-    completed = UserCompletedItem.query.filter_by(
+    # Always insert a log entry (no uniqueness restriction)
+    new_log_entry = UserCompletedItemLog(
         list_item_template_id=item_id,
-        user_id=user_id
-    ).first()
+        user_id=user_id,
+        action="completed",
+        input_value=input_value
+    )
+    db.session.add(new_log_entry)
+    db.session.commit()
 
-    if completed:
-        return jsonify({'status': 'error', 'message': 'Item already completed.'}), 400
-    else:
-        new_completed_item = UserCompletedItem(
-            list_item_template_id=item_id,
-            user_id=user_id,
-            input_value=input_value
-        )
-        db.session.add(new_completed_item)
-        db.session.commit()
-        return jsonify({'status': 'success', 'message': 'Item marked as completed.'}), 200  
+    return jsonify({'status': 'success', 'message': 'Item logged as completed.'}), 200
