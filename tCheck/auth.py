@@ -10,7 +10,7 @@ from flask_wtf.csrf import CSRFError, validate_csrf
 
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
-
+# Replace the registration logic in auth.py
 
 @bp.route('/register', methods=['GET', 'POST'])
 def register():
@@ -22,39 +22,45 @@ def register():
 
         error = None
 
+        # Basic validation
         if not username:
             error = 'Username is required.'
         elif not pin_code:
             error = 'PIN code is required.'
         elif len(pin_code) != 4:
             error = 'PIN must be 4 digits.'
+        elif not pin_code.isdigit():
+            error = 'PIN must contain only numbers.'
+
+        # Check for existing username
+        if error is None and User.query.filter_by(username=username).first():
+            error = f'Username {username} already exists.'
+
+        # ✅ IMPROVED: Check PIN uniqueness more efficiently
+        if error is None and not User.is_pin_unique(pin_code):
+            error = "PIN code already in use. Please choose a different one."
 
         if error is None:
             try:
-                all_users = User.query.all()
+                new_user = User(username=username)
+                new_user.set_pin(pin_code)
+                db.session.add(new_user)
+                db.session.commit()
 
-                for v in all_users:
-                    if v.check_pin(pin_code):
-                        error = "Not Unique Pin Code, Try Again."
-                        break
+                flash(f'Registration successful for {username}!', 'success')
+                return redirect(url_for('auth.login'))
+            
+            except Exception as e:
+                db.session.rollback()  # ✅ ADDED: Proper error handling
+                error = 'Registration failed. Please try again.'
 
-                if error is None:
-                    new_user = User(username=username)
-                    new_user.set_pin(pin_code)
-                    db.session.add(new_user)
-                    db.session.commit()
-
-                    flash(f'Registration successful for {username}!', 'success')
-                    return redirect(url_for('auth.login'))
-            except db.IntegrityError as e:
-                print(e)
-                error = f'Username {username} already exists.'
-
-
-        flash(error or 'Registration failed')
+        if error:
+            flash(error, 'error')
 
     return render_template('auth/register.html', form=form)
 
+# Replace the login logic in auth.py around lines 100-130
+# Replace your login route in auth.py with this optimized version:
 
 @bp.route('/login', methods=['GET', 'POST'])
 def login():
@@ -62,34 +68,29 @@ def login():
         form = LoginForm()
         return render_template('auth/login.html', form=form)
 
-    #error handling 
-
+    # CSRF validation
     try:
         csrf_token = request.headers.get('X-CSRFToken')
         validate_csrf(csrf_token)
     except CSRFError as e:
         return jsonify({'success': False, 'error': 'CSRF token missing or invalid'}), 400
+
     # AJAX POST handling
     data = request.get_json()
-    error = None
-
     if not data:
         return jsonify({'success': False, 'error': 'Invalid JSON data'}), 400
 
     # Initialize attempt counter
-
     if 'login_attempts' not in session:
         session['login_attempts'] = 0
 
     # Check attempt limit
-    
     if session['login_attempts'] >= 3:
         return jsonify({
             'success': False,
             'error': 'Too many failed attempts. Please try again later.',
             'status': 429
         }), 429
-
 
     # Get PIN from request
     input_pin = str(data.get('pin', '')).strip()
@@ -100,24 +101,14 @@ def login():
             'status': 400
         }), 400
 
-    all_users = User.query.all()
-    authenticated_user = None
-
-    #print(f"pin vs input_pin: {data.get('pin')} vs {input_pin}")
-    for u in all_users:
-        if u.check_pin(input_pin):
-            session['login_attempts'] += 1
-            authenticated_user = u
-            break
-        else:
-            print()
+    # ✅ OPTIMIZED: Use the new authenticate_by_pin method
+    authenticated_user = User.authenticate_by_pin(input_pin)
 
     if authenticated_user:
-        # Successful login
+        # ✅ FIXED: Reset attempts on successful login
         session.clear()
         session['user_id'] = authenticated_user.id
         session['username'] = authenticated_user.username
-        session['login_attempts'] = 0
 
         return jsonify({
             'success': True,
@@ -125,7 +116,7 @@ def login():
             'redirect': url_for('tasks.dashboard')
         })
     else:
-        # Failed login
+        # ✅ FIXED: Only increment on failed attempts
         session['login_attempts'] += 1
         return jsonify({
             'success': False,
@@ -133,9 +124,6 @@ def login():
             'attempts_remaining': 3 - session['login_attempts'],
             'status': 401
         }), 401
-
-
-
 
 @bp.route('/logout')
 def logout():

@@ -42,6 +42,13 @@
         <div id="content2" class="content-section">
             <h3>Logs</h3>
             <p>View your application logs and activity history here.</p>
+            {% if g.user_id %}
+                <p>Your User ID: {{ g.user_id }}</p>
+                {% set completed_item_ids = logs | map(attribute='item_id') | list %}
+                <p>Completed Items IDs: {{ completed_item_ids }}</p>
+            {% else %}
+                <p>Please log in to view your completed items.</p>
+            {% endif %}
         </div>
 
         <div id="content3" class="content-section">

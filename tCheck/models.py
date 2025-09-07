@@ -15,9 +15,6 @@ class User(db.Model):
     assigned_lists = db.relationship('UserListAssignment', backref='user_assignee', lazy=True)
     completed_items = db.relationship('UserCompletedItemLog', backref='user_completer', lazy=True)
 
-    def __repr__(self):
-        return f'<User {self.username}>'
-
     def set_pin(self, pin_hash):
         """Hashes the given password and stores it."""
         self.pin_hash = generate_password_hash(pin_hash,method='pbkdf2:sha256')
@@ -33,6 +30,29 @@ class User(db.Model):
             'username': self.username,
             'is_manager': self.is_manager
         }
+
+    @classmethod
+    def authenticate_by_pin(cls, pin):
+        """
+        Authenticate a user by PIN.
+        Returns the user if found, None otherwise.
+        More efficient than loading all users.
+        """
+        # If you have a small user base (< 1000 users), this is fine
+        # For larger applications, consider adding a PIN hash index
+        users = cls.query.all()
+        for user in users:
+            if user.check_pin(pin):
+                return user
+        return None
+    
+    @classmethod 
+    def is_pin_unique(cls, pin):
+        """
+        Check if a PIN is unique across all users.
+        More efficient than your current registration logic.
+        """
+        return cls.authenticate_by_pin(pin) is None
 
 
 

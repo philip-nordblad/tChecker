@@ -1,0 +1,170 @@
+{% extends 'base.html' %}
+
+{% block title %}Create New List - tCheck{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">Create New List Template</h3>
+                </div>
+                <div class="card-body">
+                    <form method="POST" id="createListForm">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                        
+                        <!-- List Details -->
+                        <div class="mb-3">
+                            <label for="list_name" class="form-label">List Name *</label>
+                            <input type="text" class="form-control" id="list_name" name="list_name" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="list_description" class="form-label">Description</label>
+                            <textarea class="form-control" id="list_description" name="list_description" rows="3"></textarea>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="is_public" name="is_public">
+                                <label class="form-check-label" for="is_public">
+                                    Make this list public (visible to all users)
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Items Section -->
+                        <h5>List Items</h5>
+                        <div id="items-container">
+                            <!-- Initial item row -->
+                            <div class="item-row mb-3 p-3 border rounded" data-item-index="0">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Item Description</label>
+                                        <input type="text" class="form-control" name="item_description[]" placeholder="Enter item description">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-check mt-4">
+                                            <input class="form-check-input requires-input-check" type="checkbox" name="item_requires_input[]" value="0">
+                                            <label class="form-check-label">Requires Input</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="form-label">Input Type</label>
+                                        <select class="form-select input-type-select" name="item_input_type[]" disabled>
+                                            <option value="text">Text</option>
+                                            <option value="number">Number</option>
+                                            <option value="date">Date</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-1 d-flex align-items-end">
+                                        <button type="button" class="btn btn-sm btn-outline-danger remove-item" disabled>×</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Add Item Button -->
+                        <div class="mb-3">
+                            <button type="button" class="btn btn-outline-primary" id="add-item-btn">
+                                + Add Another Item
+                            </button>
+                        </div>
+                        
+                        <!-- Submit Buttons -->
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('tasks.dashboard') }}" class="btn btn-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary">Create List</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let itemIndex = 1;
+    const itemsContainer = document.getElementById('items-container');
+    const addItemBtn = document.getElementById('add-item-btn');
+
+    // Add new item row
+    addItemBtn.addEventListener('click', function() {
+        const newItemRow = createItemRow(itemIndex);
+        itemsContainer.appendChild(newItemRow);
+        itemIndex++;
+        updateRemoveButtons();
+    });
+
+    // Handle requires input checkboxes
+    itemsContainer.addEventListener('change', function(e) {
+        if (e.target.classList.contains('requires-input-check')) {
+            const inputTypeSelect = e.target.closest('.item-row').querySelector('.input-type-select');
+            inputTypeSelect.disabled = !e.target.checked;
+        }
+    });
+
+    // Handle remove item buttons
+    itemsContainer.addEventListener('click', function(e) {
+        if (e.target.classList.contains('remove-item')) {
+            e.target.closest('.item-row').remove();
+            updateRemoveButtons();
+        }
+    });
+
+    function createItemRow(index) {
+        const div = document.createElement('div');
+        div.className = 'item-row mb-3 p-3 border rounded';
+        div.setAttribute('data-item-index', index);
+        div.innerHTML = `
+            <div class="row">
+                <div class="col-md-6">
+                    <label class="form-label">Item Description</label>
+                    <input type="text" class="form-control" name="item_description[]" placeholder="Enter item description">
+                </div>
+                <div class="col-md-3">
+                    <div class="form-check mt-4">
+                        <input class="form-check-input requires-input-check" type="checkbox" name="item_requires_input[]" value="${index}">
+                        <label class="form-check-label">Requires Input</label>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Input Type</label>
+                    <select class="form-select input-type-select" name="item_input_type[]" disabled>
+                        <option value="text">Text</option>
+                        <option value="number">Number</option>
+                        <option value="date">Date</option>
+                    </select>
+                </div>
+                <div class="col-md-1 d-flex align-items-end">
+                    <button type="button" class="btn btn-sm btn-outline-danger remove-item">×</button>
+                </div>
+            </div>
+        `;
+        return div;
+    }
+
+    function updateRemoveButtons() {
+        const itemRows = itemsContainer.querySelectorAll('.item-row');
+        itemRows.forEach((row, index) => {
+            const removeBtn = row.querySelector('.remove-item');
+            removeBtn.disabled = itemRows.length === 1;
+        });
+    }
+
+    // Initial state
+    updateRemoveButtons();
+});
+</script>
+
+<style>
+.item-row {
+    background-color: #f8f9fa;
+}
+.item-row:hover {
+    background-color: #e9ecef;
+}
+</style>
+{% endblock %}
